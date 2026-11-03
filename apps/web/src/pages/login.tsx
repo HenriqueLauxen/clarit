@@ -8,8 +8,8 @@ export default function LoginPage() {
     <main className="flex min-h-dvh items-center justify-center">
       <Card className="w-full  max-w-sm ring-border">
         <CardHeader>
-          <CardTitle>Clarit</CardTitle>
-          <CardDescription>Faça login no Clarit</CardDescription>
+          <CardTitle>Clarity</CardTitle>
+          <CardDescription>Faça login no Clarity</CardDescription>
         </CardHeader>
 
         <CardContent>
