@@ -1,11 +1,13 @@
 import { Routes, Route, Navigate } from 'react-router'
-import LoginPage from './pages/login'
+
+import LoginPage from './pages/entry/login'
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace/>}/>
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<Navigate to="/login" replace />} />
     </Routes>
   )
 }
