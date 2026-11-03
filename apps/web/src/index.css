@@ -5,6 +5,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@keyframes otp-wave {
+  0%, 100% { translate: 0 0; }
+  30% { translate: 0 -8px; }
+  65% { translate: 0 4px; }
+}
+
+@keyframes otp-shake {
+  0%, 100% { translate: 0; }
+  25%, 75% { translate: -4px; }
+  50% { translate: 4px; }
+}
+
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: 'Inter Variable', sans-serif;

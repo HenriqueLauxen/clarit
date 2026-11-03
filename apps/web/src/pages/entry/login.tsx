@@ -1,5 +1,5 @@
-import { CircleAlert } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { CircleAlert, LoaderCircle } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -7,11 +7,14 @@ import { z } from 'zod'
 import logo from '@/assets/sol-pixelado.svg'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useState } from 'react'
+import OtpForm from './otp-form'
 
 const credentials = z.object({ email: z.string().trim().min(1, 'Informe seu e-mail.').pipe(z.email('Informe um e-mail válido.')) })
 
-export default function LoginPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm({
+export default function LoginPage({ onVerified }: { onVerified: (email: string) => void }) {
+  const [email, setEmail] = useState('')
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(credentials),
   })
   const reducedMotion = useReducedMotion()
@@ -56,33 +59,55 @@ export default function LoginPage() {
             </Button>
             <p className="text-xs text-muted-foreground">OU</p>
 
-            <form
-              className="grid gap-3"
-              noValidate
-              onSubmit={handleSubmit(() => {})}
-            >
-              <div className="grid gap-2">
-                <Input
-                  {...register('email')}
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  aria-label="E-mail"
-                  placeholder="Digite seu e-mail"
-                  className="h-10 rounded-[10px] bg-card px-4 shadow-none"
-                  aria-invalid={Boolean(errors.email)}
-                  aria-describedby={errors.email ? 'email-error' : undefined}
-                  required
-                />
-                {errors.email && (
-                  <p id="email-error" role="alert" className="flex items-center gap-1.5 text-left text-sm text-destructive-foreground">
-                    <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
-                    {errors.email.message}
-                  </p>
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={email ? 'otp' : 'email'}
+                initial={{ opacity: 0, y: reducedMotion ? 0 : 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: reducedMotion ? 0 : -4 }}
+                transition={{ duration: reducedMotion ? 0 : 0.16 }}
+              >
+                {email ? (
+                  <OtpForm email={email} onChangeEmail={() => setEmail('')} onVerified={() => onVerified(email)} />
+                ) : (
+                  <form
+                    className="grid gap-3"
+                    noValidate
+                    onSubmit={handleSubmit(async ({ email }) => {
+                      // shortcut: espera simulada até integrar o envio do OTP.
+                      await new Promise<void>((resolve) => window.setTimeout(resolve, 450))
+                      setEmail(email)
+                    })}
+                  >
+                    <div className="grid gap-2">
+                      <Input
+                        {...register('email')}
+                        id="email"
+                        type="email"
+                        autoComplete="email"
+                        aria-label="E-mail"
+                        placeholder="Digite seu e-mail"
+                        className="h-10 rounded-[10px] bg-card px-4 shadow-none"
+                        aria-invalid={Boolean(errors.email)}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
+                        required
+                        readOnly={isSubmitting}
+                      />
+                      {errors.email && (
+                        <p id="email-error" role="alert" className="flex items-center gap-1.5 text-left text-sm text-destructive-foreground">
+                          <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
+                          {errors.email.message}
+                        </p>
+                      )}
+                    </div>
+                    <Button type="submit" className="h-10 rounded-[10px]" disabled={isSubmitting} aria-busy={isSubmitting}>
+                      {isSubmitting && <LoaderCircle aria-hidden="true" className="animate-spin" />}
+                      Continuar com e-mail
+                    </Button>
+                  </form>
                 )}
-              </div>
-              <Button type="submit" className="h-10 rounded-[10px]">Continuar com e-mail</Button>
-            </form>
+              </motion.div>
+            </AnimatePresence>
 
             <p className="text-center text-xs leading-relaxed text-muted-foreground">
               Ao continuar, você concorda com nossos{' '}
